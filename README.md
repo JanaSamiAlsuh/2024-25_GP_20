@@ -7,8 +7,5 @@ Bayyin is an advanced platform designed to provide automated data curation and e
 
 
 
-### Technologies Used
-- Programming Language: Python
-- Framework: 
-- Frontend: 
-- Database: 
+### Technologies 
+The system will be developed using a flexible stack that supports efficient Arabic text processing. The exact technologies are still being finalized, but it will include backend processing, a user-friendly frontend, and a robust database solution. Natural Language Processing (NLP) tools will also be integrated to enhance Arabic text analysis, with support for future scalability and real-time data handling.
