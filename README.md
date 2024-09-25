@@ -12,12 +12,12 @@ The Bayyin platform is developed using a combination of modern programming langu
 
 ## Launching Instructions
 
-##git clone https://github.com/JanaSamiAlsuh/2024-25_GP_20.git
+git clone https://github.com/JanaSamiAlsuh/2024-25_GP_20.git
 
-##cd project-directory
+cd project-directory
 
-##pip install -r requirements.txt
+pip install -r requirements.txt
 
-##python manage.py runserver
+python manage.py runserver
 
 
