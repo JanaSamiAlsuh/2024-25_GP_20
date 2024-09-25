@@ -13,8 +13,10 @@ The system is developed using **Python** for development to handle the backend p
 
 ## Launching Instructions
 
-git clone https://github.com/JanaSamiAlsuh/2024-25_GP_20.git
-cd project-directory
-pip install -r requirements.txt
+###git clone https://github.com/JanaSamiAlsuh/2024-25_GP_20.git
 
-python manage.py runserver
+###cd project-directory
+
+###pip install -r requirements.txt
+
+###python manage.py runserver
