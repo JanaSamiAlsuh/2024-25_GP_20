@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>الأسئلة الشائعة - بيّن</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+	<style>
+		@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
+
+		:root {
+			--bg-clr: #6c00f9;
+			--white: #fff;
+			--primary-text-clr: #212121;
+			--secondary-text-clr: #8c8c8c;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: "Open Sans", sans-serif;
+		}
+
+		body {
+			background: var(--bg-clr);
+			font-size: 16px; /* Increased font size */
+			background: radial-gradient(circle, #ecebef, #edebef);
+		}
+
+		.flex_align_justify {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.wrapper {
+			min-height: 100vh;
+			padding: 0 20px;
+		}
+
+		.faq_section {
+			width: 800px; /* Increased box width */
+			max-width: 100%;
+			height: 650px; /* Increased box height */
+			background: var(--white);
+			border-radius: 5px;
+			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+			overflow: auto; /* Keep scrollable */
+		}
+
+		.faq_section .tc_item {
+			padding: 20px 40px;
+		}
+
+		.faq_section .tc_head {
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+			height: 90px;
+		}
+
+		.faq_section .tc_head .icon img {
+			width: 80px; /* Adjusted logo width */
+			height: 80px; /* Adjusted logo height */
+			margin-right: 20px;
+			border-radius: 50%;
+		}
+
+		.faq_section .tc_body {
+			padding-right: 20px;
+			padding-bottom: 20px;
+		}
+
+		.faq_section .tc_body ol li {
+			margin-bottom: 15px;
+		}
+
+		.faq_section .tc_body ol li h3 {
+			margin-bottom: 10px; /* Increased margin for better spacing */
+		}
+
+		.faq_section .tc_body p {
+			line-height: 1.8; /* Added line-height for better readability */
+		}
+
+		/* Header */
+		.header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background-color: white;
+			padding: 20px 50px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.logo img {
+			width: 120px;
+			height: auto;
+		}
+
+		.nav-links {
+			display: flex;
+			gap: 30px;
+		}
+
+		.nav-links a {
+			text-decoration: none;
+			color: black;
+			font-size: 18px;
+			position: relative;
+			padding-bottom: 5px;
+		}
+
+		.nav-links a:hover {
+			color: #007bff;
+		}
+
+		.nav-links a::after {
+			content: "";
+			position: absolute;
+			width: 0;
+			height: 2px;
+			display: block;
+			background: #007bff;
+			transition: width 0.3s;
+		}
+
+		.nav-links a:hover::after {
+			width: 100%;
+		}
+
+		.profile-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			overflow: hidden;
+			margin-right: 50px;
+		}
+
+		.profile-icon img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			cursor: pointer;
+		}
+
+		/* Footer */
+		footer {
+			background: radial-gradient(circle, #281F54, #7d2ae8);
+			color: #fff;
+			padding: 20px 0;
+			text-align: center;
+			flex-shrink: 0;
+		}
+
+		footer .footer-content {
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			flex-wrap: wrap;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		footer .footer-content div {
+			margin-bottom: 10px;
+		}
+
+		footer h3 {
+			margin-bottom: 10px;
+		}
+
+		footer a {
+			color: #fff;
+			text-decoration: none;
+		}
+
+		footer a:hover {
+			text-decoration: underline;
+		}
+
+		footer .social-icons a {
+			font-size: 24px;
+			margin-right: 10px;
+			color: #fff;
+		}
+
+		footer .social-icons a:hover {
+			color: #ccc;
+		}
+
+		footer p {
+			font-size: 14px;
+			margin-top: 10px;
+			opacity: 0.8;
+		}
+
+		footer .footer-content div p {
+			max-width: 300px; /* Match start page width */
+			margin: 0 auto;
+			line-height: 1.6; /* Ensure consistent line height */
+			text-align: center; /* Center-align text */
+		}
+
+		@media (max-width: 768px) {
+			.footer-content {
+				flex-direction: column;
+				text-align: center;
+			}
+		}
+	</style>
+</head>
+<body >
+
+	<!-- Header -->
+	<div class="header" style="font-family: 'Poppins', sans-serif;">
+		<div class="logo">
+      <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Bayyin logo"></a>
+
+		</div>
+
+		<div class="profile-icon">
+<a href="{{ url_for('profile') }}">
+                <img src="{{ url_for('static', filename='images/account.png') }}" alt="Profile Icon">
+            </a>		</div>
+	</div>
+
+	<!-- Main Section (FAQ) -->
+	<div class="wrapper flex_align_justify">
+		<div class="faq_section">
+			<div class="tc_item tc_head flex_align_justify">
+				<div class="icon flex_align_justify">
+					<img src="static/images/logo.jpeg" alt="بيّن Logo" style="width: 130px; height: 35px;">
+				</div>
+				<div class="text">
+					<h2>الأسئلة الشائعة</h2>
+				</div>
+			</div>
+			<div class="tc_item tc_body">
+				<p>هنا ستجدون إجابات على أكثر الأسئلة شيوعًا التي قد تطرأ على أذهانكم. قمنا بتجميع هذه المعلومات لتسهيل تجربتكم وتوفير الوقت في الحصول على التفاصيل التي تحتاجونها. إذا لم تجدوا الإجابة على سؤالكم هنا، لا تترددوا في التواصل معنا</p>
+				<ol>
+					<li>
+						<h3>ما هو "بيّن"؟</h3>
+						<p>
+							" بيّن " هي منصة تعتمد على الذكاء الاصطناعي لمعالجة النصوص العربية. تقدم المنصة أدوات لتحليل وتنظيف البيانات النصية، بما في ذلك استخراج المعلومات، وتنقيح النصوص، وتوليد البيانات. تهدف المنصة إلى تسهيل عملية التعامل مع النصوص العربية للمحللين، الباحثين، وصناع القرار.
+						</p>
+					</li>
+					<li>
+						<h3>كيف يمكنني البدء في استخدام " بيّن "؟</h3>
+						<p>يمكنك البدء باستخدام "Bayyin" عن طريق تسجيل حساب جديد في المنصة. بعد تسجيل الدخول، يمكنك رفع النصوص التي ترغب في معالجتها واختيار الأدوات المناسبة لتنقيح وتحليل البيانات.</p>
+					</li>
+					<li>
+						<h3>ما هي الأدوات المتاحة في المنصة؟</h3>
+						<p>" بيّن " يوفر مجموعة متنوعة من الأدوات تشمل:
+							<ul>
+								<li>تنظيف النصوص وإزالة التكرارات والتشكيلات الزائدة.</li>
+								<li>تحليل النصوص واستخراج المعلومات الهامة.</li>
+								<li>توليد البيانات للنصوص بناءً على السياق.</li>
+								<li>تصور البيانات بحيث يسهل فهمها بشكل أفضل.</li>
+							</ul>
+						</p>
+					</li>
+					<li>
+						<h3>هل تدعم المنصة النصوص الكبيرة؟</h3>
+						<p>نعم، " بيّن " يدعم تحليل ومعالجة النصوص الكبيرة. يمكنك رفع الملفات النصية الكبيرة إلى المنصة، وستقوم الأدوات بمعالجتها بشكل فعال دون التأثير على الأداء.</p>
+					</li>
+					<li>
+						<h3>كيف يتم تنظيف النصوص في " بيّن "؟</h3>
+						<p>تعتمد منصة " بيّن " على أدوات قوية مثل Camel Tools لتنظيف النصوص العربية. يتم إزالة التكرارات، التشكيلات الزائدة، الحروف غير الضرورية، والتنسيقات الخاصة، مما يضمن إنتاج نصوص نظيفة وجاهزة للتحليل.</p>
+					</li>
+					<li>
+						<h3>هل تدعم المنصة تحليل النصوص باللغة العربية فقط؟</h3>
+						<p>حاليًا، تركز منصة " بيّن " بشكل أساسي على معالجة النصوص باللغة العربية، ولكن نحن نسعى لتوسيع دعم اللغات الأخرى في المستقبل.</p>
+					</li>
+					<li>
+						<h3>كيف يمكنني رفع النصوص إلى المنصة؟</h3>
+						<p>يمكنك رفع النصوص بتنسيق ملف.TXT</p>
+					</li>
+					<li>
+						<h3>هل يمكنني استخراج تقارير من النصوص المحللة؟</h3>
+						<p>نعم، بعد تحليل النصوص يمكنك استخراج تقارير تفصيلية حول النتائج والمخرجات، مثل توزيع الكلمات، الأنماط الشائعة، والكيانات المسماة.</p>
+					</li>
+					<li>
+						<h3>كيف يمكنني التواصل مع فريق الدعم؟</h3>
+						<p>إذا كنت بحاجة إلى مساعدة أو لديك استفسارات، يمكنك التواصل مع فريق الدعم الفني عبر البريد الإلكتروني أو عبر حساباتنا بالانستجرام و منصة اكس.</p>
+					</li>
+				</ol>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer -->
+	<footer>
+		<div class="footer-content">
+			<div>
+				<h3>من نحن</h3>
+				<p>منصة متطورة تعتمد على الذكاء الاصطناعي لتسهيل تنظيم وتحليل النصوص العربية، مما يساعد المستخدمين على الوصول إلى رؤى دقيقة بسرعة وبكفاءة عالية.</p>
+			</div>
+			<div>
+				<h3>الشروط والأحكام</h3>
+				<a href="mailto:bayyinhelp@gmail.com?subject=الدعم%20والمساعدة">الدعم والمساعدة</a> <br>
+				<a href="{{ url_for('faq') }}">الأسئلة الشائعة</a>
+
+			</div>
+			<div>
+				<h3>تواصل معنا</h3>
+				<div class="social-icons">
+					<a href="#"><i class="fab fa-twitter"></i></a>
+					<a href="#"><i class="fab fa-instagram"></i></a>
+				</div>
+			</div>
+		</div>
+		<p>جميع الحقوق محفوظة لموقع بيِّن © 2024</p>
+	</footer>
+
+</body>
+</html>

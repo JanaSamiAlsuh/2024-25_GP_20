@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title>Login and Registration Form in HTML & CSS</title>
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Load Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif; /* Apply Poppins to all elements */
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: radial-gradient(circle, #ecebef, #edebef);
+      padding-top: 160px;
+      font-family: 'Poppins', sans-serif; /* Ensure Poppins is applied */
+    }
+
+    .container {
+      position: relative;
+      max-width: 850px;
+      width: 100%;
+      background: #fff;
+      padding: 40px 30px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      margin: auto;
+      z-index: 1;
+      margin-bottom: 60px; /* Space for footer */
+    }
+
+    .container .cover {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      height: 100%;
+      width: 50%;
+      z-index: 98;
+      transition: all 1s ease;
+      transform-origin: left;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+
+    .container #flip:checked ~ .cover {
+      transform: rotateY(-180deg);
+    }
+
+    .container #flip:checked ~ .forms .login-form {
+      pointer-events: none;
+    }
+
+    .container .cover .front,
+    .container .cover .back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .cover .back {
+      transform: rotateY(180deg);
+    }
+
+    .container .cover img {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      z-index: 10;
+    }
+
+    .container .cover .text {
+      position: absolute;
+      z-index: 10;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container .cover .text::before {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      opacity: 0.5;
+      background: #7d2ae8;
+    }
+
+    .cover .text .text-1,
+    .cover .text .text-2 {
+      z-index: 20;
+      font-size: 26px;
+      font-weight: 700;
+      color: #332961;
+      text-align: center;
+    }
+
+    .cover .text .text-2 {
+      font-size: 25px;
+      font-weight: 500;
+    }
+
+    .container .forms {
+      height: 100%;
+      width: 100%;
+      background: #fff;
+    }
+
+    .container .form-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-content .login-form,
+    .form-content .signup-form {
+      width: calc(100% / 2 - 25px);
+    }
+
+    .forms .form-content .title {
+      position: relative;
+      font-size: 24px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .forms .form-content .title:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3px;
+      width: 25px;
+      background: #7d2ae8;
+    }
+
+    .forms .signup-form .title:before {
+      width: 20px;
+    }
+
+    .forms .form-content .input-boxes {
+      margin-top: 30px;
+    }
+
+    .forms .form-content .input-box {
+      display: flex;
+      align-items: center;
+      height: 50px;
+      width: 100%;
+      margin: 10px 0;
+      position: relative;
+      margin-bottom: 50px; /* More space to show error messages */
+    }
+
+    .form-content .input-box input {
+      height: 100%;
+      width: 100%;
+      outline: none;
+      border: none;
+      padding: 0 30px;
+      font-size: 16px;
+      font-weight: 500;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .form-content .input-box input:focus,
+    .form-content .input-box input:valid {
+      border-color: #7d2ae8;
+    }
+
+    .form-content .input-box i {
+      position: absolute;
+      color: #7d2ae8;
+      font-size: 17px;
+    }
+
+    .forms .form-content .text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .forms .form-content .text a {
+      text-decoration: none;
+    }
+
+    .forms .form-content .text a:hover {
+      text-decoration: underline;
+    }
+
+    .forms .form-content .button {
+      color: #fff;
+      margin-top: 40px;
+    }
+
+    .forms .form-content .button input {
+      color: #fff;
+      background: #7d2ae8;
+      border-radius: 6px;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+
+    .forms .form-content .button input:hover {
+      background: #5b13b9;
+    }
+
+    .forms .form-content label {
+      color: #5b13b9;
+      cursor: pointer;
+    }
+
+    .forms .form-content label:hover {
+      text-decoration: underline;
+    }
+
+    .forms .form-content .login-text,
+    .forms .form-content .sign-up-text {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .container #flip {
+      display: none;
+    }
+
+    .input-box {
+      position: relative;
+      margin-bottom: 50px;
+    }
+
+    .error-message {
+      position: absolute;
+      bottom: -40px;
+      left: 0;
+      width: 100%;
+      color: red;
+      font-size: 12px;
+      display: none;
+    }
+
+    .terms-box {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .terms-box input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+    }
+
+    .terms-box label {
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .terms-error {
+      color: red;
+      font-size: 12px;
+      display: none;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 730px) {
+      .container .cover {
+        display: none;
+      }
+
+      .form-content .login-form,
+      .form-content .signup-form {
+        width: 100%;
+      }
+
+      .form-content .signup-form {
+        display: none;
+      }
+
+      .container #flip:checked ~ .forms .signup-form {
+        display: block;
+      }
+
+      .container #flip:checked ~ .forms .login-form {
+        display: none;
+      }
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: flex-end; /* Align logo to the right */
+      align-items: center;
+      background-color: white;
+      padding: 20px 50px;
+      height: 84px; /* Taller header */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .logo img {
+      max-height: 40px; /* Ensure logo fits well in the taller header */
+      height: auto;
+      width: auto;
+      object-fit: contain; /* Prevents cutting the logo edges */
+      margin-right: auto; /* Pushes logo to the right */
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: black;
+      font-size: 18px;
+      position: relative;
+      padding-bottom: 5px;
+    }
+
+    .nav-links a:hover {
+      color: #007bff;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      display: block;
+      background: #007bff;
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 50px;
+    }
+
+    .profile-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    /* Footer styles */
+    footer {
+      background: radial-gradient(circle, #281F54, #7d2ae8);
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    footer .footer-content {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    footer .footer-content div {
+      margin-bottom: 10px;
+    }
+
+    footer h3 {
+      margin-bottom: 10px;
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    footer .social-icons a {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #fff;
+    }
+
+    footer .social-icons a:hover {
+      color: #ccc;
+    }
+
+    footer .footer-content div p {
+      max-width: 300px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    footer p {
+      font-size: 14px;
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+
+    footer, footer h3, footer p {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Adding RTL direction to footer */
+    footer {
+      direction: rtl;
+    }
+
+    @media (max-width: 768px) {
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    </style>
+
+    <!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Login and Registration Form in HTML & CSS</title>
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Load Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* Existing styles... */
+    </style>
+
+    <script>
+        function showErrorMessage(inputElement, message) {
+            const errorElement = inputElement.nextElementSibling;
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function clearErrorMessages(form) {
+            const errorMessages = form.querySelectorAll('.error-message');
+            errorMessages.forEach(error => error.style.display = 'none');
+
+            const termsErrorMessage = form.querySelector('.terms-error');
+            if (termsErrorMessage) {
+                termsErrorMessage.style.display = 'none';
+            }
+        }
+
+        function validateForm(event) {
+            clearErrorMessages(event.target);
+
+            const namePattern = /^[^\d]+$/; // Disallow numbers in names
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+            const firstNameInput = event.target.querySelector('input[name="first_name"]');
+            const secondNameInput = event.target.querySelector('input[name="second_name"]');
+            const emailInput = event.target.querySelector('input[placeholder="البريد الإلكتروني"]');
+            const passwordInput = event.target.querySelector('input[placeholder="كلمة المرور"]');
+            const termsCheckbox = event.target.querySelector('input[name="terms"]');
+
+            const firstNameValue = firstNameInput ? firstNameInput.value : '';
+            const secondNameValue = secondNameInput ? secondNameInput.value : '';
+            const emailValue = emailInput ? emailInput.value : '';
+            const passwordValue = passwordInput ? passwordInput.value : '';
+
+            let isValid = true;
+
+            if (firstNameInput && !namePattern.test(firstNameValue)) {
+                showErrorMessage(firstNameInput, "الاسم الأول يجب ألا يحتوي على أرقام.");
+                isValid = false;
+            }
+
+            if (secondNameInput && !namePattern.test(secondNameValue)) {
+                showErrorMessage(secondNameInput, "الاسم الثاني يجب ألا يحتوي على أرقام.");
+                isValid = false;
+            }
+
+            if (!emailValue) {
+                showErrorMessage(emailInput, "البريد الإلكتروني مطلوب.");
+                isValid = false;
+            } else if (!emailPattern.test(emailValue)) {
+                showErrorMessage(emailInput, "يرجى إدخال بريد إلكتروني صحيح يتضمن '@'.");
+                isValid = false;
+            }
+
+            if (!passwordValue) {
+                showErrorMessage(passwordInput, "كلمة المرور مطلوبة.");
+                isValid = false;
+            } else if (!passwordPattern.test(passwordValue)) {
+                showErrorMessage(passwordInput, "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل وتحتوي على حرف كبير، رقم، وحرف خاص.");
+                isValid = false;
+            }
+
+            if (!termsCheckbox.checked) {
+                const termsError = event.target.querySelector('.terms-error');
+                termsError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        }
+
+        window.addEventListener('load', function() {
+            const loginForm = document.querySelector('.login-form form');
+            const signupForm = document.querySelector('.signup-form form');
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', validateForm);
+            }
+
+            if (signupForm) {
+                signupForm.addEventListener('submit', validateForm);
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">
+<a href="{{ url_for('home') }}">
+    <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Bayyin logo">
+</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <input type="checkbox" id="flip">
+        <div class="cover">
+            <div class="front">
+                <img src="static/images/login.png" alt="">
+                <div class="text">
+                    <span class="text-1">كل نص هو <br> بداية لرحلة جديدة</span>
+                    <span class="text-2">لنبدأ في استكشاف البيانات معاً</span>
+                </div>
+            </div>
+            <div class="back">
+                <img class="backImg" src="static/images/login.png" alt="">
+                <div class="text">
+                    <span class="text-1">ابدأ رحلتك في تحليل البيانات <br> بخطوة واحدة</span>
+                    <span class="text-2">لنبدأ الآن</span>
+                </div>
+            </div>
+        </div>
+        <div class="forms">
+            <div class="form-content">
+                <!-- Login Form -->
+                <div class="login-form">
+                    <div class="title">تسجيل دخول</div>
+                     {% if success_message %}
+                        <div class="alert alert-success" style="color: green; margin-bottom: 15px;">
+                            {{ success_message }}
+                        </div>
+                    {% endif %}
+                    {% if error_message %}
+                        <div class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                            {{ error_message }}
+                        </div>
+                    {% endif %}
+
+                    <form action="/auth" method="POST">
+                        <input type="hidden" name="action" value="login">
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="username" placeholder="اسم المستخدم" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="password" placeholder="كلمة المرور" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="button input-box">
+                                <input type="submit" value="إرسال">
+                            </div>
+                            <div class="text sign-up-text">ليس لديك حساب؟ <label for="flip">سجل الآن</label></div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="signup-form">
+                    <div class="title">تسجيل حساب</div>
+                    <form action="/auth" method="POST">
+                        <input type="hidden" name="action" value="register">
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="first_name" placeholder="أدخل اسمك الأول" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="second_name" placeholder="أدخل اسمك الثاني" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="username" placeholder="اسم المستخدم" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="password" placeholder="كلمة المرور" required>
+                                <div class="error-message"></div>
+                            </div>
+                            <div class="terms-box">
+                                <input type="checkbox" name="terms" required>
+<label for="terms">أوافق على <a href="{{ url_for('terms') }}">الشروط والأحكام</a></label>
+                            </div>
+                            <div class="terms-error">يجب الموافقة على الشروط والأحكام قبل المتابعة</div>
+                            <div class="button input-box">
+                                <input type="submit" value="إرسال">
+                            </div>
+                            <div class="text sign-up-text">لديك حساب بالفعل؟ <label for="flip">تسجيل الدخول الآن</label></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content" lang="ar">
+            <div>
+                <h3>من نحن</h3>
+                <p>منصة متطورة تعتمد على الذكاء الاصطناعي لتسهيل تنظيم وتحليل النصوص العربية.
+                    مما يساعد المستخدمين على الوصول إلى رؤى دقيقة بسرعة وبكفاءة عالية.</p>
+            </div>
+            <div>
+                <h3><a href="terms.html">الشروط والأحكام</a></h3>
+                <a href="mailto:bayyinhelp@gmail.com?subject=الدعم%20والمساعدة">الدعم والمساعدة</a> <br>
+                <a href="faq.html">الأسئلة الشائعة</a>
+            </div>
+            <div>
+                <h3>تواصل معنا</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <p lang="ar">جميع الحقوق محفوظة لموقع بيِّن © 2024</p>
+    </footer>
+
+</body>
+</html>
