@@ -12,12 +12,18 @@ The Bayyin platform is developed using a combination of modern programming langu
 
 ## Launching Instructions
 
-git clone https://github.com/JanaSamiAlsuh/2024-25_GP_20.git
+1. Clone the repository from GitHub and navigate to the project directory.
 
-cd project-directory
+2. Install the necessary Python dependencies.
 
-pip install -r requirements.txt
+3. Configure the database:
+   - Update database credentials in the application configuration file.
+   - Import the database schema into your MySQL server if provided.
 
-python manage.py runserver
+4. Run the Flask application.
+
+5. Open your browser and navigate to the local server URL to access the application.
 
 
+
+---
