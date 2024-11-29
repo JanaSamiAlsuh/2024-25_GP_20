@@ -3,111 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رفع ملف</title>
+    <title>رفع الملفات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-   <style>
-
-        footer {
-  background: radial-gradient(circle, #281F54, #7d2ae8); /* Radial gradient */
-  color: #fff;
-  padding: 20px 0; /* Reduced padding to make footer less tall */
-  text-align: center;
-  flex-shrink: 0;
-    width: 100%; /* Ensure full-width */
-
-}
-
-footer .footer-content {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: wrap;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-footer .footer-content div {
-  margin-bottom: 10px;
-}
-
-footer h3 {
-  margin-bottom: 10px;
-}
-
-footer a {
-  color: #fff;
-  text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
-}
-
-footer .social-icons a {
-  font-size: 24px;
-  margin-right: 10px;
-  color: #fff;
-}
-
-footer .social-icons a:hover {
-  color: #ccc;
-}
-
-footer .footer-content div p {
-  max-width: 300px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-footer p {
-  font-size: 14px;
-  margin-top: 10px; /* Adjusted top margin */
-  opacity: 0.8;
-}
-
-@media (max-width: 768px) {
-  .footer-content {
-    flex-direction: column;
-    text-align:center;
-}
-}
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
+    <style>
+        html, body {
+            height: 100%; /* Full height of the viewport */
+            margin: 0; /* Remove default margins */
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0;
-}
-
+            flex-direction: column;
+        }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: white;
-            padding: 20px 40px;
+            padding: 20px 30px; /* Reduce padding if necessary */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            position: fixed;
+            position: fixed; /* Ensures the header stays at the top */
             top: 0;
-            z-index: 1000;
+            left: 0;
+            width: 100%;
+            z-index: 1000; /* Ensures the header is above other content */
         }
 
         .logo img {
             width: 120px;
             height: auto;
-            margin-right: 50px;
+            margin-right: 94px;
         }
 
         .nav-links {
             display: flex;
             gap: 30px;
-            margin-left: 97px;
         }
 
         .nav-links a {
@@ -141,7 +69,7 @@ footer p {
             height: 40px;
             border-radius: 50%;
             overflow: hidden;
-            margin-left: 50px;
+            margin-left: 20px;
         }
 
         .profile-icon img {
@@ -149,51 +77,42 @@ footer p {
             height: 100%;
             object-fit: cover;
             cursor: pointer;
-            padding-left: 50px;
+        }
+
+        /* General Styling */
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #e9efff, #f9fcff);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            min-height: 100vh; /* Ensure body takes full height of the viewport */
         }
 
         .container {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
             width: 100%;
-            margin-top: 400px;
-                flex: 1; /* Allows this part to expand and push the footer down */
-            margin-bottom: 30px;
-
-        }
-
-        .btn-danger {
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #ff4d4d;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-danger:hover {
-            background-color: #ff1a1a;
-        }
-
-        h1, h2 {
-            color: #7d2ae8;
             text-align: center;
+            margin: 200px; /* Add a bit of margin to the container */
         }
 
+        h1 {
+            color: #7d2ae8;
+        }
+
+        /* File Upload Styling */
         .file-upload {
             position: relative;
-            margin: 10px 0;
             border: 2px dashed #7d2ae8;
-            border-radius: 5px;
-            padding: 15px;
-            text-align: center;
-            font-size: 17px;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
             transition: border-color 0.3s ease;
         }
 
@@ -209,12 +128,30 @@ footer p {
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
             cursor: pointer;
         }
 
         .upload-icon {
-            margin-right: 10px;
             color: #7d2ae8;
+            font-size: 24px;
+        }
+
+        .submit-button {
+            background-color: #7d2ae8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background-color: #9B7EBD;
         }
 
         .file-name {
@@ -224,280 +161,164 @@ footer p {
             text-align: center;
         }
 
-        .radio-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .radio-card {
-            flex: 1;
-            padding: 8px;
-            background: #f7f7f7;
-            border: 2px solid #ccc;
-            border-radius: 5px;
+        footer {
+            background: radial-gradient(circle, #281F54, #7d2ae8);
+            color: #fff;
+            padding: 20px 0;
             text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s, background-color 0.3s;
-            font-size: 15px;
-        }
-
-        .radio-card:hover {
-            background: #CDC1FF;
-            border-color: #7d2ae8;
-        }
-
-        .radio-card input[type="radio"] {
-            display: none;
-        }
-
-        .radio-card.active {
-            background: #E5D9F2;
-            border-color: #7d2ae8;
-        }
-
-        input[type="submit"] {
-            background-color: #7d2ae8;
-            color: white;
-            border: none;
-            cursor: pointer;
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
-            font-size: 15px;
+            margin-top: auto; /* Ensure footer is always at the bottom */
         }
 
-        input[type="submit"]:hover {
-            background-color: #9B7EBD;
-        }
-
-        .custom-select-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .custom-select {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            cursor: pointer;
-            background: #fff;
-            border: 1px solid #9B7EBD;
-            border-radius: 5px;
-            padding: 10px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            text-align: center;
-        }
-
-        .custom-select:hover,
-        .custom-select:focus {
-            border-color: #7d2ae8;
-            box-shadow: 0 0 5px rgba(0, 128, 0, 0.3);
-            outline: none;
-        }
-
-        .custom-select:after {
-            content: '\f107';
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #7d2ae8;
-            pointer-events: none;
-        }
-
-        .custom-options {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 0 0 5px 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 10;
-            display: none;
-        }
-
-        .custom-options div {
-            padding: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .custom-options div:hover {
-            background-color: #7d2ae8;
-            color: #7d2ae8;
-        }
-
-        .custom-options div.selected {
-            background-color: #e0ffe0;
-            color: #7d2ae8;
-        }
-
-        .frequency-options {
+        footer .footer-content {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-            font-size: 0.9em;
-            transition: color 0.3s, background-color 0.3s;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .frequency-options label {
-            cursor: pointer;
-            padding: 5px 15px;
-            background: #f7f7f7;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        footer .footer-content div {
+            margin-bottom: 10px;
         }
 
-        .frequency-options input[type="radio"] {
-            display: none;
+        footer h3 {
+            margin-bottom: 10px;
         }
 
-        .frequency-options label:hover {
-            background: #E5D9F2;
-            border-color: #7d2ae8;
-            color: #7d2ae8;
+        footer a {
+            color: #fff;
+            text-decoration: none;
         }
 
-        .frequency-options input[type="radio"]:checked + label {
-            background: #E5D9F2;
-            border-color: #7d2ae8;
-            color: #9B7EBD;
+        footer a:hover {
+            text-decoration: underline;
         }
 
-        .frequency-options-text {
-            padding-right: 25px;
-            font-size: 17px;
+        footer .social-icons a {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        footer .social-icons a:hover {
+            color: #ccc;
+        }
+
+        footer .footer-content div p {
+            max-width: 300px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        footer p {
+            font-size: 14px;
             margin-top: 10px;
-            text-align: right;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
-
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <a href="{{ url_for('home') }}">
-                <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="My Logo">
-            </a>
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Bayyin logo"></a>
         </div>
         <div class="nav-links">
             <a href="{{ url_for('home') }}">الصفحة الرئيسية</a>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">تسجيل خروج</a>
+            {% if session.get('loggedin') %}
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">تسجيل خروج</a>
+                <form id="logout-form" action="{{ url_for('logout') }}" method="post" style="display: none;"></form>
+            {% else %}
+                <a href="{{ url_for('login') }}">تسجيل الدخول</a>
+            {% endif %}
         </div>
         <div class="profile-icon">
-            <a href="{{ url_for('profile') }}">
+            <a href="{% if session.get('loggedin') %}{{ url_for('profile') }}{% else %}{{ url_for('login') }}{% endif %}">
                 <img src="{{ url_for('static', filename='images/account.png') }}" alt="Profile Icon">
             </a>
         </div>
     </div>
 
-    <!-- Hidden form for logging out -->
-    <form id="logout-form" action="{{ url_for('logout') }}" method="post" style="display: none;">
-        <input type="hidden" name="csrf_token">
-    </form>
-
     <div class="container">
-        <h1>رفع ملف نصي لمعالجته</h1>
-
-        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" id="processing-form">
-            <div class="file-upload" onclick="document.getElementById('file').click()">
-                <span>اختر ملف لرفعه</span>
-                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                <input type="file" name="file" id="file" accept=".txt" required onchange="showFileName()">
+        <h1>رفع الملفات</h1>
+        <p style="color: #7d2ae8; font-size: 14px;">يمكن تحميل ملفات النصوص (.txt) أو مستندات الوورد (.docx) فقط</p>
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+            <div class="file-upload" id="file-upload" onclick="document.getElementById('file').click()">
+                <div class="upload-button">
+                    <span>اختر الملفات (.txt, .docx) لرفعها</span>
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                </div>
+                <input type="file" name="files" id="file" accept=".txt, .docx" required multiple onchange="validateFile(); showFileNames()">
                 <div class="file-name" id="file-name"></div>
+                <div id="success-message" style="color: green; font-size: 14px; margin-top: 10px;"></div>
             </div>
-
-            <h2>اختر طريقة المعالجة</h2>
-            <div class="radio-group">
-                <label class="radio-card" id="radio-cleaning">
-                    <input type="radio" name="processing" value="cleaning" onclick="selectCard(this)" required>
-                    تنظيف فقط
-                </label>
-                <label class="radio-card" id="radio-clean-preprocess">
-                    <input type="radio" name="processing" value="clean_preprocess" onclick="selectCard(this)" required>
-                    تنظيف + إزالة الكلمات الشائعة
-                </label>
-                <label class="radio-card" id="radio-clean-stem">
-                    <input type="radio" name="processing" value="clean_stem" onclick="selectCard(this)" required>
-                    تنظيف + إزالة الكلمات الشائعة + الجذر
-                </label>
-            </div>
-
-            <h2>خيارات تكرار الكلمات</h2>
-            <div class="custom-select-wrapper">
-                <select name="top_n" class="custom-select" required>
-                    <option value="5">أفضل 5</option>
-                    <option value="10">أفضل 10</option>
-                    <option value="20">أفضل 20</option>
-                </select>
-            </div>
-
-            <h2>خيارات تكرار الكلمات</h2>
-            <div class="frequency-options">
-                <input type="radio" id="most_frequent" name="freq_order" value="most" checked>
-                <label for="most_frequent">الأكثر تكرارًا</label>
-                <input type="radio" id="least_frequent" name="freq_order" value="least">
-                <label for="least_frequent">الأقل تكرارًا</label>
-            </div>
-
-            <input type="submit" value="رفع ومعالجة">
+            <input type="submit" value="رفع الملفات" class="submit-button">
         </form>
     </div>
 
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h3>من نحن</h3>
+                <p>منصة متطورة تعتمد على الذكاء الاصطناعي لتسهيل تنظيم وتحليل النصوص العربية. مما يساعد المستخدمين على الوصول إلى رؤى دقيقة بسرعة وبكفاءة عالية.</p>
+            </div>
+            <div>
+                <h3><a href="{{ url_for('terms') }}">الشروط والأحكام</a></h3>
+                <a href="mailto:bayyinhelp@gmail.com?subject=الدعم%20والمساعدة">الدعم والمساعدة</a> <br>
+                <a href="{{ url_for('faq') }}">الأسئلة الشائعة</a>
+            </div>
+            <div>
+                <h3>تواصل معنا</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <p>جميع الحقوق محفوظة لموقع بيِّن © 2024</p>
+    </footer>
+
     <script>
-        function selectCard(radio) {
-            // Remove active class from all radio cards
-            document.querySelectorAll('.radio-card').forEach(card => card.classList.remove('active'));
-            // Add active class to the selected radio card
-            radio.parentElement.classList.add('active');
+        function showFileNames() {
+            const fileInput = document.getElementById('file');
+            const fileNameDiv = document.getElementById('file-name');
+            const successMessageDiv = document.getElementById('success-message');
+            const files = fileInput.files;
+
+            if (files.length > 0) {
+                let fileNames = Array.from(files).map(file => file.name).join(', ');
+                fileNameDiv.textContent = fileNames;
+                successMessageDiv.textContent = `تم رفع الملف بنجاح: ${fileNames}`;
+            } else {
+                fileNameDiv.textContent = "اختر الملفات لرفعها";
+                successMessageDiv.textContent = "";
+            }
         }
 
-        function showFileName() {
+        function validateFile() {
             const fileInput = document.getElementById('file');
-            const fileNameDisplay = document.getElementById('file-name');
-            if (fileInput.files.length > 0) {
-                const fileName = fileInput.files[0].name;
-                fileNameDisplay.textContent = `تم اختيار الملف: ${fileName}`;
+            const files = fileInput.files;
+            const allowedExtensions = ["txt", "docx"];
+
+            for (let i = 0; i < files.length; i++) {
+                const fileExtension = files[i].name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(fileExtension)) {
+                    alert("تحذير: الملف غير مدعوم. الرجاء رفع ملفات النصوص (.txt) أو مستندات الوورد (.docx) فقط.");
+                    fileInput.value = "";
+                    document.getElementById('file-name').textContent = "اختر الملفات لرفعها";
+                    document.getElementById('success-message').textContent = "";
+                    break;
+                }
             }
         }
     </script>
-
-  <!-- Footer -->
-<footer style="font-family: 'Poppins', sans-serif;">
-  <div class="footer-content">
-    <div>
-      <h3>من نحن</h3>
-      <p>منصة متطورة تعتمد على الذكاء الاصطناعي لتسهيل تنظيم وتحليل النصوص العربية.
-        مما يساعد المستخدمين على الوصول إلى رؤى دقيقة بسرعة وبكفاءة عالية.</p>
-    </div>
-    <div>
-      <h3><a href="terms.html">الشروط والأحكام</a></h3> <!-- Made الشروط و الأحكام a link -->
-      <a href="mailto:bayyinhelp@gmail.com?subject=الدعم%20والمساعدة">الدعم والمساعدة</a> <br>
-      <a href="{{ url_for('faq') }}">الأسئلة الشائعة</a>
-    </div>
-    <div>
-      <h3>تواصل معنا</h3>
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-      </div>
-    </div>
-  </div>
-  <p>جميع الحقوق محفوظة لموقع بيِّن © 2024</p>
-</footer>
-
 </body>
 </html>

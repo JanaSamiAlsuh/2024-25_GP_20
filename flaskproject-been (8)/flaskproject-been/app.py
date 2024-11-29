@@ -1,4 +1,7 @@
+from datetime import time
+
 import pymysql
+
 pymysql.install_as_MySQLdb()
 import os
 import re
@@ -27,11 +30,21 @@ from camel_tools.tokenizers.word import simple_word_tokenize
 from nltk.stem.isri import ISRIStemmer
 import smtplib
 from email.mime.text import MIMEText
+# New imports for NER and Keyword Extraction
+from transformers import AutoTokenizer, AutoModelForTokenClassification, AutoModel
+import torch
+import numpy as np
+from keybert import KeyBERT
+import uuid
+from docx import Document
 
+from flask import Response, stream_with_context
 
+# pip install python-docx
 
 
 app = Flask(__name__)
+
 app.secret_key = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
@@ -41,15 +54,12 @@ app.config['MYSQL_HOST'] = 'localhost'
 # Default MAMP port for MySQL
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'  # Default MAMP password (if unchanged)
-app.config['MYSQL_DB'] = 'flask_users'
+app.config['MYSQL_DB'] = 'flask_users2'
 app.config['MYSQL_SSL_DISABLED'] = True  # Disable SSL
-
-
 
 # Initialize MySQL
 mysql = MySQL(app)
 matplotlib.use('Agg')  # Ensure matplotlib doesn't require an active display
-
 
 # Set up Arabic text rendering in matplotlib
 rcParams['font.family'] = 'sans-serif'
@@ -75,7 +85,23 @@ arabic_stopwords.update(additional_stopwords)
 # Initialize NLTK stemmer for Arabic
 stemmer = ISRIStemmer()
 
+# Initialize models for NER and Keyword Extraction
+model_ner_name = "marefa-nlp/marefa-ner"
+tokenizer_ner = AutoTokenizer.from_pretrained(model_ner_name)
+model_ner = AutoModelForTokenClassification.from_pretrained(model_ner_name)
 
+model_kw_name = "aubmindlab/bert-base-arabertv02"
+tokenizer_kw = AutoTokenizer.from_pretrained(model_kw_name)
+model_kw = AutoModel.from_pretrained(model_kw_name)
+kw_model = KeyBERT(model_kw)
+
+# Custom labels for NER
+custom_labels = [
+    "O", "B-job", "I-job", "B-nationality", "B-person", "I-person",
+    "B-location", "B-time", "I-time", "B-event", "I-event",
+    "B-organization", "I-organization", "I-location", "I-nationality",
+    "B-product", "I-product", "B-artwork", "I-artwork"
+]
 
 # Path to save uploaded files
 UPLOAD_FOLDER = 'uploads/'
@@ -93,10 +119,8 @@ valid_double_letter_words = [
     "تتلألأ", "اللغه", "اللغة", "تتلألأ"
 ]
 
-
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
-
 
 
 # Authentication and home page routes
@@ -110,23 +134,19 @@ def index():
 from werkzeug.security import check_password_hash
 
 
+# def send_verification_email(email, verification_token):
+#  verification_link = url_for('verify_email', token=verification_token, _external=True)
+#  message = f'Please verify your email by clicking the following link: {verification_link}'
 
+#  msg = MIMEText(message)
+#  msg['Subject'] = 'Email Verification'
+#  msg['From'] = 'bayyinhelp@gmail.com'
+#  msg['To'] = email
 
-
-
-#def send_verification_email(email, verification_token):
-  #  verification_link = url_for('verify_email', token=verification_token, _external=True)
-  #  message = f'Please verify your email by clicking the following link: {verification_link}'
-
-  #  msg = MIMEText(message)
-  #  msg['Subject'] = 'Email Verification'
-  #  msg['From'] = 'bayyinhelp@gmail.com'
-  #  msg['To'] = email
-
- #   with smtplib.SMTP('smtp.gmail.com', 587) as server:  # Use your SMTP server
-  #      server.starttls()
-  #      server.login('bayyinhelp@gmail.com', 'kgrz otqt rckn pnwv')
-    #    server.sendmail(msg['From'], [msg['To']], msg.as_string())
+#   with smtplib.SMTP('smtp.gmail.com', 587) as server:  # Use your SMTP server
+#      server.starttls()
+#      server.login('bayyinhelp@gmail.com', 'kgrz otqt rckn pnwv')
+#    server.sendmail(msg['From'], [msg['To']], msg.as_string())
 @app.route('/auth', methods=['POST'])
 def auth():
     action = request.form.get('action')
@@ -211,6 +231,7 @@ def auth():
 
 from flask import redirect, url_for
 
+
 @app.route('/verify_email/<token>')
 def verify_email(token):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -225,6 +246,7 @@ def verify_email(token):
         return redirect(url_for('login', error_message="هذا البريد الإلكتروني تم التحقق منه مسبقاً."))
     else:
         return redirect(url_for('login', error_message="رابط التحقق غير صالح."))
+
 
 @app.route('/login')
 def login():
@@ -249,6 +271,7 @@ def send_verification_email(email, verification_token):
             server.sendmail(msg['From'], [msg['To']], msg.as_string())
     except Exception as e:
         print(f"Error sending email: {e}")
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -294,7 +317,6 @@ def register():
     return render_template('regestr.html')
 
 
-
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('loggedin', None)
@@ -303,126 +325,245 @@ def logout():
     return redirect(url_for('login'))
 
 
-
-
 # Home page route
 @app.route('/home')
 def home():
     return render_template('homeBage.html')
 
+
 @app.route('/terms')
 def terms():
     return render_template('terms.html')
+
+
 @app.route('/faq')
 def faq():
     return render_template('faq.html')
 
 
+from flask import send_file  # Ensure this import is included
 
 # Upload and process file route
 # Upload and process file route
+from flask import render_template
 
-# Function to generate a unique default name like "ملف 1", "ملف 2", etc.
+import uuid
+
+
 @app.route('/upload', methods=['POST', 'GET'])
 def upload_file():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
 
-    if 'file' not in request.files or request.files['file'].filename == '':
-        return render_template('upload.html', message='الرجاء اختيار ملف من نوع .txt')
+    if request.method == 'POST':
+        if 'files' not in request.files or not request.files.getlist('files'):
+            return render_template('upload.html', message='الرجاء اختيار ملف واحد أو أكثر من نوع .txt أو .docx')
 
-    file = request.files['file']
-    if not file.filename.endswith('.txt'):
-        return render_template('upload.html', message='يرجى اختيار ملف نصي بامتداد .txt')
+        # Retrieve files and save them temporarily
+        files = request.files.getlist('files')
+        uploaded_files = []
+        for file in files:
+            file_extension = file.filename.split('.')[-1].lower()
+            if file_extension not in ['txt', 'docx']:
+                return render_template('upload.html', message='يرجى اختيار ملفات نصية بامتداد .txt أو .docx فقط')
 
-    processing_option = request.form.get('processing')
-    top_n = int(request.form.get('top_n', 10))  # Default Top N words
-    freq_order = request.form.get('freq_order', 'most')
+            # Save the file with a unique filename
+            filename = f"{uuid.uuid4()}_{file.filename}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            uploaded_files.append(file_path)
 
-    if file and file.filename.endswith('.txt'):
-        filename = f"{uuid.uuid4()}_{file.filename}"  # Unique filename
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        # Store the uploaded files' paths in the session
+        session['uploaded_files'] = uploaded_files
 
-        # Create a unique default name using the original file's name without extension
-        default_name = generate_unique_name(session['id'])
+        # Redirect to processing options page
+        return redirect(url_for('processing_options'))
 
-        with open(filepath, 'r', encoding='utf-8') as f:
-            text = f.read()
+    return render_template('upload.html')
 
-        cleaned_text = clean_arabic_text(text)
-        tokens = tokenize_text(cleaned_text)
 
-        # Apply text processing options
-        if processing_option == "clean_preprocess":
-            tokens = remove_stopwords(tokens)
-        elif processing_option == "clean_stem":
-            tokens = remove_stopwords(tokens)
-            tokens = stem_words(tokens)
+@app.route('/processing', methods=['GET', 'POST'])
+def processing_options():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
 
-        word_frequencies = generate_word_frequencies(tokens)
-        sorted_word_frequencies = sorted(word_frequencies.items(), key=lambda x: x[1], reverse=True) if freq_order == 'most' else sorted(word_frequencies.items(), key=lambda x: x[1])
-        top_words = sorted_word_frequencies[:top_n]
+    if 'uploaded_files' not in session:
+        return redirect(url_for('upload_file'))
 
-        # Generate a unique identifier for each upload to avoid overwriting visualizations
-        unique_id = uuid.uuid4()
+    if request.method == 'POST':
+        # Retrieve user-selected options
+        processing_option = request.form.get('processing')
+        apply_ner = 'apply_ner' in request.form
+        apply_key_extraction = 'apply_key_extraction' in request.form
+        top_n = int(request.form.get('top_n', 10))
+        freq_order = request.form.get('freq_order', 'most')
 
-        # Generate visualizations and save file paths
-        wordcloud_filepath = os.path.join('static', f'wordcloud_{session["id"]}_{unique_id}.png')
-        generate_wordcloud(' '.join(tokens), wordcloud_filepath)
+        # Store processing options in session
+        session['processing_option'] = processing_option
+        session['apply_ner'] = apply_ner
+        session['apply_key_extraction'] = apply_key_extraction
+        session['top_n'] = top_n
+        session['freq_order'] = freq_order
 
-        unigram_plot_filepath = os.path.join('static', f'word_freq_plot_{session["id"]}_{unique_id}.png')
-        plot_word_frequencies(top_words, f'Top {top_n} {freq_order.capitalize()} Words', unigram_plot_filepath)
-        unigram_plot_url = url_for('static', filename=f'word_freq_plot_{session["id"]}_{unique_id}.png')
+        # Redirect to results processing
+        return redirect(url_for('process_results'))
 
-        # Initialize bigram and trigram plot file paths as empty strings
-        bigram_plot_filepath = ''
-        trigram_plot_filepath = ''
+    return render_template('processing.html')
 
-        # Generate bigrams and trigrams
-        bigrams, trigrams = generate_ngrams(tokens)
+from time import sleep
 
-        # Set bigram_plot_url based on whether bigrams exist
-        if bigrams:
-            bigram_plot_filepath = os.path.join('static', f'bigram_plot_{session["id"]}_{unique_id}.png')
-            plot_ngrams(bigrams, 'Top Bigrams', bigram_plot_filepath)
-            bigram_plot_url = url_for('static', filename=f'bigram_plot_{session["id"]}_{unique_id}.png')
-        else:
-            bigram_plot_url = None  # Set to None if no bigrams
 
-        # Set trigram_plot_url based on whether trigrams exist
-        if trigrams:
-            trigram_plot_filepath = os.path.join('static', f'trigram_plot_{session["id"]}_{unique_id}.png')
-            plot_ngrams(trigrams, 'Top Trigrams', trigram_plot_filepath)
-            trigram_plot_url = url_for('static', filename=f'trigram_plot_{session["id"]}_{unique_id}.png')
-        else:
-            trigram_plot_url = None  # Set to None if no trigrams
+@app.route('/process_results', methods=['GET'])
+def process_results():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
 
-        # Convert word frequencies to string format for storing in database
-        word_frequencies_str = ','.join([f"{word}:{freq}" for word, freq in sorted_word_frequencies])
+    if 'uploaded_files' not in session or 'processing_option' not in session:
+        return redirect(url_for('upload_file'))
 
-        # Store results in MySQL for the logged-in user, including the default name
-        try:
-            cursor = mysql.connection.cursor()
-            cursor.execute(
-                'INSERT INTO tbl_results (user_id, filename, default_name, cleaned_text, word_frequencies, wordcloud_path, unigram_plot_path, bigram_plot_path, trigram_plot_path) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                (session['id'], filename, default_name, cleaned_text, word_frequencies_str, wordcloud_filepath, unigram_plot_filepath, bigram_plot_filepath, trigram_plot_filepath))
-            mysql.connection.commit()
-        except Exception as e:
-            print(f"Error saving results to database: {e}")
-            return "Error saving results."
+    # Simulate backend processing delay to improve synchronization with front-end loading
+    sleep(3)  # Simulating a delay (3 seconds) to align the backend with the progress bar in the frontend
 
-        # Render the result page
-        return render_template('result.html',
-                               original_text=text,
-                               cleaned_text=cleaned_text,
-                               wordcloud_url=url_for('static', filename=f'wordcloud_{session["id"]}_{unique_id}.png'),
-                               unigram_plot_url=unigram_plot_url,
-                               bigram_plot_url=bigram_plot_url,
-                               trigram_plot_url=trigram_plot_url,
-                               word_frequencies=top_words)
+    # Retrieve files and options from session
+    uploaded_files = session.get('uploaded_files', [])
+    processing_option = session.get('processing_option', 'تنظيف فقط')
+    apply_ner = session.get('apply_ner', False)
+    apply_key_extraction = session.get('apply_key_extraction', False)
+    top_n = session.get('top_n', 10)
+    freq_order = session.get('freq_order', 'most')
 
-    return redirect(url_for('home'))
+    # Initialize merged text
+    merged_text = ""
+
+    # Load and merge text from the uploaded files
+    for file_path in uploaded_files:
+        file_extension = file_path.split('.')[-1].lower()
+
+        # Handle .txt files
+        if file_extension == 'txt':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                merged_text += f.read() + "\n"
+
+        # Handle .docx files
+        elif file_extension == 'docx':
+            document = Document(file_path)
+            docx_text = "\n".join([paragraph.text for paragraph in document.paragraphs])
+            merged_text += docx_text + "\n"
+
+    # Clean and tokenize merged text
+    cleaned_text = clean_arabic_text(merged_text)
+    tokens = tokenize_text(cleaned_text)
+
+    # Apply processing options
+    if processing_option == "تنظيف + إزالة الكلمات الشائعة":
+        tokens = remove_stopwords(tokens)
+    elif processing_option == "تنظيف + إزالة الكلمات الشائعة + الجذر":
+        tokens = remove_stopwords(tokens)
+        tokens = stem_words(tokens)
+
+    # Generate word frequencies
+    word_frequencies = generate_word_frequencies(tokens)
+    sorted_word_frequencies = sorted(
+        word_frequencies.items(),
+        key=lambda x: x[1],
+        reverse=True
+    ) if freq_order == 'most' else sorted(
+        word_frequencies.items(),
+        key=lambda x: x[1]
+    )
+    top_words = sorted_word_frequencies[:top_n]
+
+    # Generate visualizations
+    unique_id = uuid.uuid4()
+    wordcloud_filepath = os.path.join('static', f'wordcloud_{session["id"]}_{unique_id}.png')
+    generate_wordcloud(' '.join(tokens), wordcloud_filepath)
+
+    unigram_plot_filepath = os.path.join('static', f'unigram_plot_{session["id"]}_{unique_id}.png')
+    plot_word_frequencies(top_words, f'Top {top_n} {freq_order.capitalize()} Words', unigram_plot_filepath)
+    unigram_plot_url = url_for('static', filename=f'unigram_plot_{session["id"]}_{unique_id}.png')
+
+    # Generate N-grams and their visualizations
+    bigrams, trigrams = generate_ngrams(tokens)
+    bigram_plot_filepath = os.path.join('static', f'bigram_plot_{session["id"]}_{unique_id}.png')
+    trigram_plot_filepath = os.path.join('static', f'trigram_plot_{session["id"]}_{unique_id}.png')
+
+    bigram_plot_url = None
+    trigram_plot_url = None
+
+    if bigrams:
+        plot_ngrams(bigrams, 'Top Bigrams', bigram_plot_filepath)
+        bigram_plot_url = url_for('static', filename=f'bigram_plot_{session["id"]}_{unique_id}.png')
+    else:
+        print("No bigrams found with enough frequency to plot.")
+
+    if trigrams:
+        plot_ngrams(trigrams, 'Top Trigrams', trigram_plot_filepath)
+        trigram_plot_url = url_for('static', filename=f'trigram_plot_{session["id"]}_{unique_id}.png')
+    else:
+        print("No trigrams found with enough frequency to plot.")
+
+    # Perform NER if selected
+    ner_results = []
+    if apply_ner:
+        ner_results = extract_ner(cleaned_text, model_ner, tokenizer_ner)
+
+    # Perform keyword extraction if selected
+    keyword_results = []
+    if apply_key_extraction:
+        keyword_results = extract_keywords(cleaned_text, kw_model)
+
+    # Save results in the database
+    try:
+        cursor = mysql.connection.cursor()
+
+        query = """
+            INSERT INTO tbl_results (
+                user_id, filename, original_text, cleaned_text, word_frequencies, 
+                wordcloud_path, unigram_plot_path, bigram_plot_path, trigram_plot_path, 
+                created_at, processing_type, ner_results, keyword_results
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s)
+        """
+
+        word_frequencies_str = ','.join([f"{k}:{v}" for k, v in word_frequencies.items()])
+        ner_results_json = json.dumps(ner_results)
+        keyword_results_json = json.dumps(keyword_results)
+
+        cursor.execute(query, (
+            session['id'],
+            f"{unique_id}_{uploaded_files[0].split('/')[-1]}",  # Unique filename
+            merged_text,
+            cleaned_text,
+            word_frequencies_str,
+            wordcloud_filepath,
+            unigram_plot_filepath,
+            bigram_plot_filepath,
+            trigram_plot_filepath,
+            processing_option,
+            ner_results_json,
+            keyword_results_json
+        ))
+
+        mysql.connection.commit()
+    except Exception as e:
+        print(f"Error saving results to database: {e}")
+        return render_template('processing.html', message="حدث خطأ أثناء حفظ النتائج.")
+    finally:
+        cursor.close()
+
+    # Finalize and return the result once processing is complete
+    return render_template(
+        'result.html',
+        original_text=merged_text,
+        cleaned_text=cleaned_text,
+        wordcloud_url=url_for('static', filename=f'wordcloud_{session["id"]}_{unique_id}.png'),
+        unigram_plot_url=unigram_plot_url,
+        bigram_plot_url=bigram_plot_url,
+        trigram_plot_url=trigram_plot_url,
+        word_frequencies=top_words,
+        ner_results=ner_results if ner_results else ["لا يوجد"],
+        keyword_results=keyword_results if keyword_results else ["لا يوجد"]
+    )
+
 
 # Function to generate a unique default name like "ملف 1", "ملف 2", etc.
 def generate_unique_name(user_id):
@@ -434,6 +575,10 @@ def generate_unique_name(user_id):
     while f"ملف {index}" in existing_names:
         index += 1
     return f"ملف {index}"
+
+
+from flask import Response, stream_with_context
+
 
 @app.route('/update_file_name/<int:result_id>', methods=['POST'])
 def update_file_name(result_id):
@@ -456,33 +601,33 @@ def update_file_name(result_id):
     return 'Invalid request', 400
 
 
-
-
-
-
-# Route to display individual result details
-@app.route('/result/<int:result_id>', methods=['GET'])
+@app.route('/view_result/<int:result_id>', methods=['GET'])
 def view_result(result_id):
     if 'loggedin' not in session:
         return redirect(url_for('login'))
 
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("""
-        SELECT filename, cleaned_text, word_frequencies, wordcloud_path, unigram_plot_path, bigram_plot_path, trigram_plot_path
+        SELECT original_text, cleaned_text, word_frequencies, wordcloud_path, 
+               unigram_plot_path, bigram_plot_path, trigram_plot_path, 
+               ner_results, keyword_results, filename
         FROM tbl_results
         WHERE id = %s AND user_id = %s
     """, (result_id, session['id']))
-    result = cursor.fetchone()
 
+    result = cursor.fetchone()
     if result:
-        # Parse word_frequencies back into a list of tuples
         result['word_frequencies'] = [
             tuple(item.split(':')) for item in result['word_frequencies'].split(',')
-        ]
+        ] if result['word_frequencies'] else []
+
+        result['ner_results'] = json.loads(result['ner_results']) if result['ner_results'] else ["لا يوجد"]
+        result['keyword_results'] = json.loads(result['keyword_results']) if result['keyword_results'] else ["لا يوجد"]
+        result['filename_display'] = result['filename'].split('_', 1)[-1]  # Strip UUID from filename
+
         return render_template('view_result.html', result=result)
     else:
         return "Result not found."
-
 
 
 # Full Arabic text cleaning function
@@ -499,22 +644,28 @@ def clean_arabic_text(text):
     text = re.sub(r'<[^>]+>', '', text)  # Remove HTML or special markup
     return text
 
+
 # Tokenize text using Camel Tools
 def tokenize_text(text):
     return simple_word_tokenize(text)
+
 
 # Remove stopwords using NLTK's Arabic stopword list
 def remove_stopwords(tokens):
     return [word for word in tokens if word not in arabic_stopwords]
 
+
 # Perform stemming using NLTK's ISRIStemmer
 def stem_words(tokens):
     return [stemmer.stem(word) for word in tokens]
+
 
 # Generate word frequencies and return them
 def generate_word_frequencies(tokens):
     word_counts = Counter(tokens)
     return word_counts
+
+
 # Function to generate N-grams (bi-grams and tri-grams)
 def generate_ngrams(tokens):
     bigrams = list(ngrams(tokens, 2))
@@ -538,7 +689,6 @@ def generate_ngrams(tokens):
 def plot_word_frequencies(word_frequencies, title, filepath):
     reshaped_words = [get_display(arabic_reshaper.reshape(word)) for word, _ in word_frequencies]
     freqs = [count for _, count in word_frequencies]
-
     plt.figure(figsize=(10, 5))
     plt.bar(reshaped_words, freqs)
     plt.title(title, fontsize=16)
@@ -549,6 +699,7 @@ def plot_word_frequencies(word_frequencies, title, filepath):
     plt.savefig(filepath, bbox_inches='tight')
     plt.close()
 
+
 # Plot N-grams
 def plot_ngrams(ngrams_with_freq, title, filepath, top_n=20):
     # Sort n-grams by frequency in descending order and take the top N
@@ -557,10 +708,8 @@ def plot_ngrams(ngrams_with_freq, title, filepath, top_n=20):
     if not sorted_ngrams:
         print(f"No {title.lower()} found with enough frequency to plot.")
         return
-
     reshaped_ngrams = [get_display(arabic_reshaper.reshape(ngram)) for ngram, _ in sorted_ngrams]
     ngram_freqs = [freq for _, freq in sorted_ngrams]
-
     plt.figure(figsize=(10, 5))
     plt.bar(reshaped_ngrams, ngram_freqs)
     plt.title(title, fontsize=16)
@@ -572,17 +721,77 @@ def plot_ngrams(ngrams_with_freq, title, filepath, top_n=20):
     plt.close()
 
 
+import os
+from wordcloud import WordCloud
+from bidi.algorithm import get_display
+import arabic_reshaper
 
-# Generate word cloud
+
+# Function to generate a word cloud with the correct font path
 def generate_wordcloud(text, filepath):
-    reshaped_text = get_display(arabic_reshaper.reshape(text))  # Reshape and adjust text direction for Arabic
-    wordcloud = WordCloud(font_path='Amiri-Regular.ttf',
-                          background_color='white',
-                          width=800,
-                          height=400).generate(reshaped_text)
+    # Construct the full path to 'Amiri-Regular.ttf'
+    font_path = os.path.join(os.path.dirname(__file__), 'Amiri-Regular.ttf')
+
+    # Verify if the font file exists
+    if not os.path.exists(font_path):
+        raise FileNotFoundError(f"Font file not found at {font_path}")
+
+    # Reshape and adjust text direction for Arabic
+    reshaped_text = get_display(arabic_reshaper.reshape(text))
+
+    # Generate the word cloud with the specified font
+    wordcloud = WordCloud(
+        font_path=font_path,
+        background_color='white',
+        width=800,
+        height=400
+    ).generate(reshaped_text)
+
+    # Save the generated word cloud to the specified filepath
     wordcloud.to_file(filepath)
 
-  # Profile route
+
+#  Named Entity Recognition (NER)
+def extract_ner(text, model, tokenizer, start_token="▁"):
+    tokenized_sentence = tokenizer([text], padding=True, truncation=True, return_tensors="pt")
+    tokenized_sentences = tokenized_sentence['input_ids'].numpy()
+    with torch.no_grad():
+        output = model(**tokenized_sentence)
+    last_hidden_states = output[0].numpy()
+    label_indices = np.argmax(last_hidden_states[0], axis=1)
+    tokens = tokenizer.convert_ids_to_tokens(tokenized_sentences[0])
+    special_tags = set(tokenizer.special_tokens_map.values())
+    grouped_tokens = []
+    for token, label_idx in zip(tokens, label_indices):
+        if token not in special_tags:
+            if not token.startswith(start_token) and len(token.replace(start_token, "").strip()) > 0:
+                grouped_tokens[-1]["token"] += token
+            else:
+                grouped_tokens.append({"token": token, "label": custom_labels[label_idx]})
+    ents = []
+    prev_label = "O"
+    for token in grouped_tokens:
+        label = token["label"].replace("I-", "").replace("B-", "")
+        if token["label"] != "O":
+            if label != prev_label:
+                ents.append({"token": [token["token"]], "label": label})
+            else:
+                ents[-1]["token"].append(token["token"])
+        prev_label = label
+    ents = [
+        {"token": "".join(rec["token"]).replace(start_token, " ").strip(), "label": rec["label"]}
+        for rec in ents
+    ]
+    return ents
+
+
+# Keyword Extraction
+def extract_keywords(text, kw_model):
+    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), stop_words=None, top_n=10)
+    return keywords
+
+
+# Profile route
 # Profile route
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -593,28 +802,132 @@ def profile():
 
     # Fetch user details from the database
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT first_name, second_name, username, email, id FROM tbl_users WHERE id = %s", (user_id,))
+    cursor.execute(
+        "SELECT first_name, second_name, username, email, id, birthdate, country, cv, major FROM tbl_users WHERE id = %s",
+        (user_id,))
     user_info = cursor.fetchone()
 
-    # Fetch user results (include the id in the SELECT query)
     cursor.execute("""
-          SELECT id, filename, default_name, cleaned_text, word_frequencies, wordcloud_path, unigram_plot_path, bigram_plot_path, trigram_plot_path
-          FROM tbl_results
-          WHERE user_id = %s
-          ORDER BY created_at DESC
-      """, (user_id,))
+        SELECT id, filename, default_name, cleaned_text, word_frequencies, wordcloud_path, 
+               unigram_plot_path, bigram_plot_path, trigram_plot_path, created_at, 
+               processing_type, ner_results, keyword_results
+        FROM tbl_results
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+    """, (user_id,))
     user_results = cursor.fetchall()
 
-    # Ensure default_name is set properly and includes the ID
+    # Ensure default_name is set properly and format additional fields
     for result in user_results:
         if not result['default_name']:
-            result['default_name'] = f"ملف جديد {result['id']}"
-        # Parse word_frequencies to a list of tuples (word, frequency)
+            result['default_name'] = f"\u0645\u0644\u0641 \u062c\u062f\u064a\u062f {result['id']}"
+
+        # Assign formatted date if available (formatted as 'day-month-year hour:minute')
+        result['formatted_date'] = result['created_at'].strftime('%d-%m-%Y %H:%M') if result[
+            'created_at'] else 'غير متاح'
+
+        # Assign display filename if available (show only the original filename without the UUID prefix)
+        result['display_filename'] = os.path.basename(result['filename']).split('_', 1)[-1] if result[
+            'filename'] else 'غير متاح'
+
+        # Parse word_frequencies back into a list of tuples
         result['word_frequencies'] = [
             tuple(item.split(':')) for item in result['word_frequencies'].split(',')
         ]
 
+        # Parse NER results from JSON
+        result['ner_results'] = json.loads(result['ner_results']) if result['ner_results'] else ["لا يوجد"]
+
+        # Parse Keyword results from JSON
+        result['keyword_results'] = json.loads(result['keyword_results']) if result['keyword_results'] else ["لا يوجد"]
+
+    if request.method == 'POST':
+        # Get the updated data from the form, including the major field
+        birthdate = request.form.get('birthdate')
+        country = request.form.get('country')
+        cv = request.form.get('cv')
+        major = request.form.get('major')
+
+        try:
+            # Update the user's profile information in the database
+            cursor.execute("""
+                UPDATE tbl_users 
+                SET birthdate = %s, country = %s, cv = %s, major = %s
+                WHERE id = %s
+            """, (birthdate, country, cv, major, user_id))
+            mysql.connection.commit()
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+
     return render_template('profile.html', user=user_info, results=user_results)
+
+
+@app.route('/update_biography', methods=['POST'])
+def update_biography():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+    # Get form data
+    birthdate = request.form.get('birthdate', '').strip()
+    country = request.form.get('country', '').strip()
+    cv = request.form.get('cv', '').strip()
+
+    # Validate the form data
+    if not birthdate or not country or not cv:
+        return redirect(url_for('profile', error_message="يرجى ملء جميع الحقول المطلوبة."))
+
+    try:
+        # Update the user information in the database
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            UPDATE tbl_users
+            SET birthdate = %s, country = %s, cv = %s
+            WHERE id = %s
+        """, (birthdate, country, cv, user_id))
+        mysql.connection.commit()
+        cursor.close()
+
+        return redirect(url_for('profile', success_message="تم تحديث السيرة الذاتية بنجاح."))
+    except Exception as e:
+        print(f"Error updating biography: {e}")
+        return redirect(url_for('profile', error_message="حدث خطأ أثناء تحديث السيرة الذاتية."))
+
+
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+
+
+@app.route('/update_user_info', methods=['POST'])
+def update_user_info():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+    username = request.form.get('username')
+    email = request.form.get('email')
+    first_name = request.form.get('first_name')
+    second_name = request.form.get('second_name')
+    major = request.form.get('major')  # Added the major field
+
+    # Validate the inputs
+    if not all([username, email, first_name, second_name, major]):
+        return redirect(url_for('profile', error_message="يرجى ملء جميع الحقول المطلوبة."))
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            UPDATE tbl_users 
+            SET username = %s, email = %s, first_name = %s, second_name = %s, major = %s
+            WHERE id = %s
+        """, (username, email, first_name, second_name, major, user_id))  # Updated to include the major field
+        mysql.connection.commit()
+        cursor.close()
+    except Exception as e:
+        print(f"Error updating user info: {e}")
+        return redirect(url_for('profile', error_message="حدث خطأ أثناء تحديث المعلومات. يرجى المحاولة لاحقًا."))
+
+    return redirect(url_for('profile', success_message="تم تحديث معلوماتك بنجاح."))
+
 
 # @app.route('/profile', methods=['GET', 'POST'])
 # def profile():
@@ -638,30 +951,36 @@ def profile():
 #     user_results = cursor.fetchall()
 #
 #     return render_template('profile.html', user=user_info, results=user_results)
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+
+import traceback
 
 
+@app.route('/delete_file/<int:result_id>', methods=['DELETE'])
+def delete_file(result_id):
+    if 'loggedin' not in session:
+        return jsonify({"success": False, "message": "User not logged in"}), 401
 
+    try:
+        cursor = mysql.connection.cursor()
+        delete_query = 'DELETE FROM tbl_results WHERE id = %s AND user_id = %s'
+        cursor.execute(delete_query, (result_id, session['id']))
 
-# MySQL Table Definitions
-# CREATE TABLE tbl_users (
-#     id int(11) NOT NULL AUTO_INCREMENT,
-#     username varchar(50) NOT NULL,
-#     email varchar(100) NOT NULL,
-#     password varchar(255) NOT NULL,
-#     PRIMARY KEY (id)
-# );
-#
-# CREATE TABLE tbl_results (
-#     id int(11) NOT NULL AUTO_INCREMENT,
-#     user_id int(11) NOT NULL,
-#     filename varchar(255) NOT NULL,
-#     wordcloud_path varchar(255) NOT NULL,
-#     unigram_plot_path varchar(255) NOT NULL,
-#     bigram_plot_path varchar(255) NOT NULL,
-#     trigram_plot_path varchar(255) NOT NULL,
-#     PRIMARY KEY (id),
-#     FOREIGN KEY (user_id) REFERENCES tbl_users(id)
-# );
+        if cursor.rowcount == 0:
+            print("File not found or unauthorized action")
+            return jsonify({"success": False, "message": "File not found or unauthorized action"}), 404
+
+        mysql.connection.commit()
+        print("File deleted successfully")
+        return jsonify({"success": True, "message": "File deleted successfully"}), 200
+    except Exception as e:
+        print("Error deleting file:")
+        print(e)
+        traceback.print_exc()  # This will give us the complete stack trace
+        return jsonify({"success": False, "message": f"Error deleting file: {str(e)}"}), 500
+    finally:
+        cursor.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

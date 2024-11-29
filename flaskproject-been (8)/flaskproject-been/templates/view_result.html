@@ -4,25 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Result Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e9efff, #f9fcff);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .header {
             display: flex;
-    justify-content: space-between;
+            justify-content: space-between;
             align-items: center;
-            background-color: white;
+            background-color: #ffffff;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
         }
 
         .logo img {
             width: 120px;
             height: auto;
-            margin-right: 50px;
+            margin-right: 30px;
         }
 
         .nav-links {
@@ -35,59 +58,66 @@
             color: black;
             font-size: 18px;
             position: relative;
-            padding-bottom: 5px;
         }
 
         .nav-links a:hover {
             color: #007bff;
         }
 
-        .nav-links a::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 0;
-            height: 2px;
-            background: #007bff;
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .profile-icon {
+        .profile-icon img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            margin-left: 50px;
-            margin-bottom: 34px;
-            margin-top: 9px;
-            margin-right: 50px;
+            margin-left: 32px;
         }
 
-        .profile-icon img {
-            width: 100%;
-            height: 100%;
-        }
-
-        .result-container {
-            background-color: white;
+        .tabs-content {
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            margin: 20px auto;
+            max-width: 900px;
+            margin: 30px auto;
         }
 
-        h2, h3 {
-            color: #1155c7;
+        h1 {
             text-align: center;
+            color: #1155c7;
+            margin-top: 20px;
         }
 
-        .result-text {
-            margin: 10px 0;
+        .nav-tabs {
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            background-color: #6f42c1;
+            border-radius: 0;
+            margin: 5px;
+            padding: 10px 20px;
+            color: white;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            font-weight: bold;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #4b0082;
+            color: white;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            transform: scale(1.05);
+            background-color: #5a189a;
+            border-radius: 0;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+            background-color: #f0f0ff;
+            padding: 20px;
+            border-radius: 10px;
         }
 
         img {
@@ -105,16 +135,92 @@
         ul li {
             margin: 5px 0;
         }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin: 20px auto;
+            text-decoration: none;
+            font-size: 16px;
+            color: #007bff;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background: radial-gradient(circle, #281F54, #7d2ae8);
+            color: #fff;
+            padding: 20px 0;
+            font-size: 14px;
+            text-align: center;
+            flex-shrink: 0;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+        }
+
+        footer .footer-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        footer .footer-content div {
+            margin-bottom: 10px;
+        }
+
+        footer h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        footer a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        footer .social-icons a {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        footer .social-icons a:hover {
+            color: #ccc;
+        }
+
+        footer .footer-content div p {
+            max-width: 300px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        footer p {
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
-    <div class="header" lang="ar" style="font-family: 'Poppins', sans-serif;">
-        <div class="logo" lang="ar">
-<a href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="My Logo">        </a></div>
+    <div class="header">
+        <div class="logo">
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="My Logo">
+            </a>
+        </div>
         <div class="nav-links">
             <a href="{{ url_for('home') }}">الصفحة الرئيسية</a>
-            <!-- Logout link triggers the hidden form submission -->
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">تسجيل خروج</a>
         </div>
         <div class="profile-icon">
@@ -124,49 +230,259 @@
         </div>
     </div>
 
-    <!-- Hidden form for logging out -->
     <form id="logout-form" action="{{ url_for('logout') }}" method="post" style="display: none;">
         <input type="hidden" name="logout" value="1">
     </form>
 
-    <div class="result-container">
-        <h2>Result for {{ result.filename }}</h2>
+    <div class="container-content">
+        <div class="tabs-content">
+         <h1>{{ result.filename_display.split('_', 1)[-1] }}</h1>
 
-        <div class="result-text">
-            <strong>النص بعد التنظيف:</strong>
-            <p>{{ result.cleaned_text }}</p>
+        <ul class="nav nav-tabs" id="mainTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab" aria-controls="text" aria-selected="true">المحتوى النصي</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="visuals-tab" data-bs-toggle="tab" data-bs-target="#visuals" type="button" role="tab" aria-controls="visuals" aria-selected="false">التمثيلات البصرية</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis" type="button" role="tab" aria-controls="analysis" aria-selected="false">تحليل النص</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="mainTabContent">
+            <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+                <ul class="nav nav-tabs" id="textSubTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="original-text-tab" data-bs-toggle="tab" data-bs-target="#original-text" type="button" role="tab" aria-controls="original-text" aria-selected="true">النص الأصلي</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="cleaned-text-tab" data-bs-toggle="tab" data-bs-target="#cleaned-text" type="button" role="tab" aria-controls="cleaned-text" aria-selected="false">النص المنقح</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="original-text" role="tabpanel" aria-labelledby="original-text-tab">
+                        <p>{{ result.original_text }}</p>
+                    </div>
+                    <div class="tab-pane fade" id="cleaned-text" role="tabpanel" aria-labelledby="cleaned-text-tab">
+                        <p>{{ result.cleaned_text }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="visuals" role="tabpanel" aria-labelledby="visuals-tab">
+                <ul class="nav nav-tabs" id="visualsSubTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="wordcloud-tab" data-bs-toggle="tab" data-bs-target="#wordcloud" type="button" role="tab" aria-controls="wordcloud" aria-selected="true">سحابة الكلمات</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="unigram-tab" data-bs-toggle="tab" data-bs-target="#unigram" type="button" role="tab" aria-controls="unigram" aria-selected="false">تحليل الكلمات الفردية</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="bigram-tab" data-bs-toggle="tab" data-bs-target="#bigram" type="button" role="tab" aria-controls="bigram" aria-selected="false">أنماط العبارات الثنائية</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="trigram-tab" data-bs-toggle="tab" data-bs-target="#trigram" type="button" role="tab" aria-controls="trigram" aria-selected="false">أنماط العبارات الثلاثية</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="wordcloud" role="tabpanel" aria-labelledby="wordcloud-tab">
+                        <img src="{{ url_for('static', filename=result.wordcloud_path.replace('static\\', '').replace('\\', '/')) }}" alt="Word Cloud">
+                    </div>
+                    <div class="tab-pane fade" id="unigram" role="tabpanel" aria-labelledby="unigram-tab">
+                        <img src="{{ url_for('static', filename=result.unigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Unigram Plot">
+                    </div>
+  <div class="tab-pane fade" id="bigram" role="tabpanel" aria-labelledby="bigram-tab">
+    {% if result.bigram_plot_path and result.bigram_plot_path != '' %}
+        <img src="{{ url_for('static', filename=result.bigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Bigram Plot">
+    {% else %}
+        <p style="text-align: center; color: #333; font-size: 16px;">لا يوجد تكرار لأنماط العبارات الثنائية.</p>
+    {% endif %}
+</div>
+
+<div class="tab-pane fade" id="trigram" role="tabpanel" aria-labelledby="trigram-tab">
+    {% if result.trigram_plot_path and result.trigram_plot_path != '' %}
+        <img src="{{ url_for('static', filename=result.trigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Trigram Plot">
+    {% else %}
+        <p style="text-align: center; color: #333; font-size: 16px;">لا يوجد تكرار لأنماط العبارات الثلاثية.</p>
+    {% endif %}
+</div>
+
+
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
+                <ul class="nav nav-tabs" id="analysisSubTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="word-frequencies-tab" data-bs-toggle="tab" data-bs-target="#word-frequencies" type="button" role="tab" aria-controls="word-frequencies" aria-selected="true">تردد الكلمات</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="ner-tab" data-bs-toggle="tab" data-bs-target="#ner" type="button" role="tab" aria-controls="ner" aria-selected="false">التعرف على الكيانات</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="keywords-tab" data-bs-toggle="tab" data-bs-target="#keywords" type="button" role="tab" aria-controls="keywords" aria-selected="false">الكلمات المفتاحية</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="word-frequencies" role="tabpanel" aria-labelledby="word-frequencies-tab">
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; background-color: #f0f0ff; padding: 10px; border-radius: 10px;">
+                            {% if result.word_frequencies and result.word_frequencies|length > 0 %}
+                                {% for word, freq in result.word_frequencies %}
+                                    <div style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                        background-color: #D1B2FF;
+                                        border-radius: 20px;
+                                        padding: 8px 15px;
+                                        font-weight: bold;
+                                        border: 1px solid #ddd;
+                                        font-size: 14px;
+                                    ">
+                                        <span style="color: black;">{{ freq }}</span>
+                                        <span style="color: black;">{{ word }}</span>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: #333; font-size: 16px;">لا يوجد</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="ner" role="tabpanel" aria-labelledby="ner-tab">
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; background-color: #f0f0ff; padding: 10px; border-radius: 10px;">
+                            {% if result.ner_results and result.ner_results|length > 0 %}
+                                {% for entity in result.ner_results %}
+                                    <div style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                        background-color:
+                                            {% if entity['label'] == 'location' %}
+                                                #FFD1D1;
+                                            {% elif entity['label'] == 'person' %}
+                                                #D1FFD1;
+                                            {% elif entity['label'] == 'organization' %}
+                                                #D1B2FF;
+                                            {% elif entity['label'] == 'artwork' %}
+                                                #D1F1FF;
+                                            {% elif entity['label'] == 'time' %}
+                                                #FFF1D1;
+                                            {% elif entity['label'] == 'nationality' %}
+                                                #FDD9F5;
+                                            {% elif entity['label'] == 'job' %}
+                                                #FFE4B5;
+                                            {% elif entity['label'] == 'product' %}
+                                                #E0FFFA;
+                                            {% elif entity['label'] == 'event' %}
+                                                #FFE4E1;
+                                            {% else %}
+                                                #F5F5F5;
+                                            {% endif %};
+                                        border-radius: 20px;
+                                        padding: 8px 15px;
+                                        font-weight: bold;
+                                        border: 1px solid #ddd;
+                                        font-size: 14px;
+                                    ">
+                                        <span style="color: black; font-size: 14px;">{{ entity['token'] }}</span>
+                                        <span style="
+                                            display: inline-block;
+                                            background-color: white;
+                                            color: black;
+                                            padding: 5px 10px;
+                                            border-radius: 15px;
+                                            font-size: 14px;
+                                            font-weight: bold;
+                                            text-align: center;
+                                            min-width: 60px;">
+                                            {% if entity['label'] == 'location' %}
+                                                موقع
+                                            {% elif entity['label'] == 'person' %}
+                                                شخص
+                                            {% elif entity['label'] == 'organization' %}
+                                                منظمة
+                                            {% elif entity['label'] == 'artwork' %}
+                                                عمل فني
+                                            {% elif entity['label'] == 'time' %}
+                                                وقت
+                                            {% elif entity['label'] == 'nationality' %}
+                                                جنسية
+                                            {% elif entity['label'] == 'job' %}
+                                                وظيفة
+                                            {% elif entity['label'] == 'product' %}
+                                                منتج
+                                            {% elif entity['label'] == 'event' %}
+                                                حدث
+                                            {% else %}
+                                                نوع
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: #333; font-size: 16px;">لا توجد نتائج التعرف على الكيانات.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="keywords" role="tabpanel" aria-labelledby="keywords-tab">
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; background-color: #f0f0ff; padding: 10px; border-radius: 10px;">
+                            {% if result.keyword_results and result.keyword_results|length > 0 %}
+                                {% for keyword, score in result.keyword_results %}
+                                    <div style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                        background-color: #D1B2FF;
+                                        border-radius: 20px;
+                                        padding: 8px 15px;
+                                        font-weight: bold;
+                                        border: 1px solid #ddd;
+                                        font-size: 14px;
+                                    ">
+                                        <span style="color: black;">{{ score }}</span>
+                                        <span style="color: black;">{{ keyword }}</span>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: #333; font-size: 16px;">لا توجد كلمات مفتاحية.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="result-text">
-            <strong>تردد الكلمات:</strong>
-            <ul>
-                {% for word, freq in result.word_frequencies %}
-                    <li>{{ word }}: {{ freq }}</li>
-                {% endfor %}
-            </ul>
-        </div>
 
-        <div class="result-text">
-            <strong>سحابة الكلمات:</strong>
-            <img src="{{ url_for('static', filename=result.wordcloud_path.replace('static\\', '').replace('\\', '/')) }}" alt="Word Cloud">
-        </div>
 
-        <div class="result-text">
-            <strong>احادي الصيغة:</strong>
-            <img src="{{ url_for('static', filename=result.unigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Unigram Plot">
-        </div>
 
-        <div class="result-text">
-            <strong>الصيغة الثنائية:</strong>
-            <img src="{{ url_for('static', filename=result.bigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Bigram Plot">
-        </div>
 
-        <div class="result-text">
-            <strong>الصيغة الثلاثية:</strong>
-            <img src="{{ url_for('static', filename=result.trigram_plot_path.replace('static\\', '').replace('\\', '/')) }}" alt="Trigram Plot">
-        </div>
 
-        <a href="{{ url_for('profile') }}">Back to Profile</a>
+        </div>
     </div>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h3>من نحن</h3>
+                <p>منصة متطورة تعتمد على الذكاء الاصطناعي لتسهيل تنظيم وتحليل النصوص العربية.
+                    مما يساعد المستخدمين على الوصول إلى رؤى دقيقة بسرعة وبكفاءة عالية.</p>
+            </div>
+            <div>
+                <h3><a href="{{ url_for('terms') }}">الشروط والأحكام</a></h3>
+                <a href="mailto:bayyinhelp@gmail.com?subject=الدعم%20والمساعدة">الدعم والمساعدة</a> <br>
+                <a href="{{ url_for('faq') }}">الأسئلة الشعية</a>
+            </div>
+            <div>
+                <h3>تواصل معنا</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <p>جميع الحقوق محفوظة لموقع بيِّن © 2024</p>
+    </footer>
 </body>
 </html>
