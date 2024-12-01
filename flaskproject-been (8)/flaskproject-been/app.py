@@ -45,6 +45,7 @@ from flask import Response, stream_with_context
 
 app = Flask(__name__)
 
+
 app.secret_key = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
@@ -381,6 +382,7 @@ def upload_file():
 
     return render_template('upload.html')
 
+
 @app.route('/processing', methods=['GET', 'POST'])
 def processing_options():
     if 'loggedin' not in session:
@@ -390,26 +392,32 @@ def processing_options():
         return redirect(url_for('upload_file'))
 
     if request.method == 'POST':
-        # Retrieve user-selected options
-        processing_option = request.form.get('processing')
+        # Retrieve processing option
+        processing_option = request.form.get('processing')  # Default to 'clean_only' if missing
+        print(f"Processing option selected: {processing_option}")  # Debugging output
+
         apply_ner = 'apply_ner' in request.form
         apply_key_extraction = 'apply_key_extraction' in request.form
         top_n = int(request.form.get('top_n', 10))
         freq_order = request.form.get('freq_order', 'most')
 
-        # Store processing options in session
         session['processing_option'] = processing_option
         session['apply_ner'] = apply_ner
         session['apply_key_extraction'] = apply_key_extraction
         session['top_n'] = top_n
         session['freq_order'] = freq_order
 
-        # Redirect to results processing
+
+            # Store in session
+        session['processing_option'] = processing_option
+
         return redirect(url_for('process_results'))
 
     return render_template('processing.html')
 
+
 from time import sleep
+
 
 @app.route('/process_results', methods=['GET'])
 def process_results():
@@ -419,14 +427,17 @@ def process_results():
     if 'uploaded_files' not in session or 'processing_option' not in session:
         return redirect(url_for('upload_file'))
 
+
     # Retrieve files and options from session
+    sleep(3)  # Simulating backend processing delay
+
     uploaded_files = session.get('uploaded_files', [])
-    processing_option = session.get('processing_option', 'clean_only')
+    processing_option = session.get('processing_option')
+    print(f"Processing option in process_results: {processing_option}")
     apply_ner = session.get('apply_ner', False)
     apply_key_extraction = session.get('apply_key_extraction', False)
     top_n = session.get('top_n', 10)
     freq_order = session.get('freq_order', 'most')
-
     # Initialize merged text
     merged_text = ""
 
@@ -452,9 +463,13 @@ def process_results():
     # Apply processing options
     if processing_option == "clean_preprocess":
         tokens = remove_stopwords(tokens)
+       # txtword = " ".join(remove_stopwords(cleaned_text.split()))
     elif processing_option == "clean_stem":
         tokens = remove_stopwords(tokens)
+      #  txtword = " ".join(remove_stopwords(cleaned_text.split()))
+
         tokens = stem_words(tokens)
+      #  txtword = " ".join(stem_words(txtword.split()))
 
     # Generate word frequencies
     word_frequencies = generate_word_frequencies(tokens)
@@ -498,18 +513,20 @@ def process_results():
         print("No trigrams found with enough frequency to plot.")
 
     # Perform NER if selected
-    ner_results = []
-    if apply_ner:
-        ner_results = extract_ner(cleaned_text, model_ner, tokenizer_ner)
-
-    # Perform keyword extraction if selected
-    keyword_results = []
-    if apply_key_extraction:
-        keyword_results = extract_keywords(cleaned_text, kw_model)
+    ner_results = extract_ner(tokens, model_ner, tokenizer_ner) if apply_ner else None
+    keyword_results = extract_keywords(tokens, kw_model) if apply_key_extraction else None
 
     # Save results in the database
     try:
+        # Save results to database
         cursor = mysql.connection.cursor()
+        sanitized_text = sanitize_text(merged_text)  # Sanitize the original text
+
+        # Save results to database
+        cursor = mysql.connection.cursor()
+        cursor.execute('SET NAMES utf8mb4;')
+        cursor.execute('SET CHARACTER SET utf8mb4;')
+        cursor.execute('SET character_set_connection=utf8mb4;')
 
         query = """
             INSERT INTO tbl_results (
@@ -539,6 +556,7 @@ def process_results():
         ))
 
         mysql.connection.commit()
+
     except Exception as e:
         print(f"Error saving results to database: {e}")
         return render_template('processing.html', message="حدث خطأ أثناء حفظ النتائج.")
@@ -558,6 +576,13 @@ def process_results():
         ner_results=ner_results if ner_results else ["لا يوجد"],
         keyword_results=keyword_results if keyword_results else ["لا يوجد"]
     )
+
+def sanitize_text(text):
+    """
+    Remove unsupported characters by encoding to UTF-8 and ignoring errors.
+    """
+    return text.encode('utf-8', 'ignore').decode('utf-8')
+
 
 # Function to generate a unique default name like "ملف 1", "ملف 2", etc.
 def generate_unique_name(user_id):
@@ -747,6 +772,9 @@ def generate_wordcloud(text, filepath):
 
 #  Named Entity Recognition (NER)
 def extract_ner(text, model, tokenizer, start_token="▁"):
+    if not isinstance(text, str):
+        text = " ".join(text)  # Ensure text is a single string
+
     tokenized_sentence = tokenizer([text], padding=True, truncation=True, return_tensors="pt")
     tokenized_sentences = tokenized_sentence['input_ids'].numpy()
     with torch.no_grad():
@@ -781,6 +809,8 @@ def extract_ner(text, model, tokenizer, start_token="▁"):
 
 # Keyword Extraction
 def extract_keywords(text, kw_model):
+    if not isinstance(text, str):
+        text = " ".join(text)  # Ensure text is a single string
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), stop_words=None, top_n=10)
     return keywords
 
@@ -974,7 +1004,5 @@ def delete_file(result_id):
         return jsonify({"success": False, "message": f"Error deleting file: {str(e)}"}), 500
     finally:
         cursor.close()
-
-
 if __name__ == '__main__':
     app.run(debug=True)
