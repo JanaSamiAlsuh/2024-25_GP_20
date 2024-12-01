@@ -381,7 +381,6 @@ def upload_file():
 
     return render_template('upload.html')
 
-
 @app.route('/processing', methods=['GET', 'POST'])
 def processing_options():
     if 'loggedin' not in session:
@@ -412,7 +411,6 @@ def processing_options():
 
 from time import sleep
 
-
 @app.route('/process_results', methods=['GET'])
 def process_results():
     if 'loggedin' not in session:
@@ -421,12 +419,9 @@ def process_results():
     if 'uploaded_files' not in session or 'processing_option' not in session:
         return redirect(url_for('upload_file'))
 
-    # Simulate backend processing delay to improve synchronization with front-end loading
-    sleep(3)  # Simulating a delay (3 seconds) to align the backend with the progress bar in the frontend
-
     # Retrieve files and options from session
     uploaded_files = session.get('uploaded_files', [])
-    processing_option = session.get('processing_option', 'تنظيف فقط')
+    processing_option = session.get('processing_option', 'clean_only')
     apply_ner = session.get('apply_ner', False)
     apply_key_extraction = session.get('apply_key_extraction', False)
     top_n = session.get('top_n', 10)
@@ -455,9 +450,9 @@ def process_results():
     tokens = tokenize_text(cleaned_text)
 
     # Apply processing options
-    if processing_option == "تنظيف + إزالة الكلمات الشائعة":
+    if processing_option == "clean_preprocess":
         tokens = remove_stopwords(tokens)
-    elif processing_option == "تنظيف + إزالة الكلمات الشائعة + الجذر":
+    elif processing_option == "clean_stem":
         tokens = remove_stopwords(tokens)
         tokens = stem_words(tokens)
 
@@ -563,7 +558,6 @@ def process_results():
         ner_results=ner_results if ner_results else ["لا يوجد"],
         keyword_results=keyword_results if keyword_results else ["لا يوجد"]
     )
-
 
 # Function to generate a unique default name like "ملف 1", "ملف 2", etc.
 def generate_unique_name(user_id):
